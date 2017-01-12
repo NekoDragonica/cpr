@@ -95,6 +95,7 @@ void Session::Impl::freeHolder(CurlHolder* holder) {
 CurlHolder* Session::Impl::newHolder() {
     CurlHolder* holder = new CurlHolder();
     holder->handle = curl_easy_init();
+    holder->chunk = NULL;
     return holder;
 }
 
@@ -122,9 +123,10 @@ void Session::Impl::SetHeader(const Header& header) {
                 header_string += ": " + item->second;
             }
             chunk = curl_slist_append(chunk, header_string.data());
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
-            curl_->chunk = chunk;
         }
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
+        curl_slist_free_all(curl_->chunk);
+        curl_->chunk = chunk;
     }
 }
 
